@@ -1,0 +1,5 @@
+## Interface: 60200
+## Title: BattlegroundSpiritReleaser
+## Notes: automatically releases spirit upon death in battlegrounds
+## Author: Alex Folland
+BattlegroundSpiritReleaser.lua
