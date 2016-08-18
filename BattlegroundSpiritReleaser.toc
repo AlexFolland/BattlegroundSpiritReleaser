@@ -1,4 +1,4 @@
-## Interface: 60200
+## Interface: 70000
 ## Title: BattlegroundSpiritReleaser
 ## Notes: automatically releases spirit upon death in battlegrounds
 ## Author: Alex Folland
