@@ -128,6 +128,7 @@ optionsMenu:SetScript("OnEvent", function (this, event, arg1, ...)
         InitializeBattlegroundSpiritReleaserDB(BattlegroundSpiritReleaserDBDefaults)
         BattlegroundSpiritReleaserEnabledCheckButton:SetChecked(BattlegroundSpiritReleaserDB.Enabled)
         BattlegroundSpiritReleaserUseSoulstoneCheckButton:SetChecked(BattlegroundSpiritReleaserDB.UseSoulstone)
+        BattlegroundSpiritReleaserSoulstoneDelayEditBox:SetText(tostring(BattlegroundSpiritReleaserDB.SoulstoneDelay))
         BattlegroundSpiritReleaserSoulstoneDelaySlider:SetValue(BattlegroundSpiritReleaserDB.SoulstoneDelay)
 
         optionsMenu:UnregisterEvent(event)
