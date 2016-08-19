@@ -172,6 +172,7 @@ SlashCmdList["BattlegroundSpiritReleaser"] = function(msg)
     end
 end
 
+--get current time when the death dialog appears to measure for delay
 hooksecurefunc(StaticPopupDialogs["DEATH"],"OnShow",function(self)
     if InActiveBattlefield() and not IsActiveBattlefieldArena() then
         if HasSoulstone() and BattlegroundSpiritReleaserDB.UseSoulstone ~= nil and BattlegroundSpiritReleaserDB.UseSoulstone == true then
@@ -184,7 +185,7 @@ end)
 hooksecurefunc(StaticPopupDialogs["DEATH"],"OnUpdate",function(self)
     if InActiveBattlefield() and not IsActiveBattlefieldArena() then
         if HasSoulstone() and BattlegroundSpiritReleaserDB.UseSoulstone ~= nil and BattlegroundSpiritReleaserDB.UseSoulstone == true then
-            if self.button2:IsEnabled() and GetTime() >= BattlegroundSpiritReleaserSoulstoneDelayStartTime + BattlegroundSpiritReleaserDB.SoulstoneDelay then
+            if BattlegroundSpiritReleaserSoulstoneDelayStartTime ~= nil and self.button2:IsEnabled() and GetTime() >= BattlegroundSpiritReleaserSoulstoneDelayStartTime + BattlegroundSpiritReleaserDB.SoulstoneDelay then
                 self.button2:Click()
                 print("BattlegroundSpiritReleaser: Soulstone used"..(BattlegroundSpiritReleaserDB.SoulstoneDelay == 0 and "" or " after a delay of "..tostring(BattlegroundSpiritReleaserDB.SoulstoneDelay).." second"..(BattlegroundSpiritReleaserDB.SoulstoneDelay == 1 and "" or "s"))..". You can toggle this functionality with \"/bsr soulstone\".")
             end
