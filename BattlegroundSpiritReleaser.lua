@@ -1,5 +1,5 @@
 --default values for options saved between sessions
-BattlegroundSpiritReleaserDBDefaults = {
+local BattlegroundSpiritReleaserDBDefaults = {
     Enabled = true,
     UseSoulstone = true,
     SoulstoneDelay = 0
@@ -8,7 +8,7 @@ BattlegroundSpiritReleaserDBDefaults = {
 local maxSoulstoneDelay = 20
 
 --function to initialize missing saved variables with default values
-function InitializeBattlegroundSpiritReleaserDB(defaults)
+local function InitializeBattlegroundSpiritReleaserDB(defaults)
     if not BattlegroundSpiritReleaserDB then BattlegroundSpiritReleaserDB = {} end
     for k,v in pairs(defaults) do
         if BattlegroundSpiritReleaserDB[k] == nil then
@@ -18,7 +18,7 @@ function InitializeBattlegroundSpiritReleaserDB(defaults)
 end
 
 --option setters
-function ToggleBattlegroundSpiritReleaser(force, shouldPrint)
+local function ToggleBattlegroundSpiritReleaser(force, shouldPrint)
     if BattlegroundSpiritReleaserDB.Enabled == nil then InitializeBattlegroundSpiritReleaserDB(BattlegroundSpiritReleaserDBDefaults) end
     if force ~= nil then BattlegroundSpiritReleaserDB.Enabled = force else BattlegroundSpiritReleaserDB.Enabled = not BattlegroundSpiritReleaserDB.Enabled end
     if shouldPrint ~= nil and shouldPrint == true then
@@ -28,7 +28,7 @@ function ToggleBattlegroundSpiritReleaser(force, shouldPrint)
     BattlegroundSpiritReleaserEnabledCheckButton:SetChecked(BattlegroundSpiritReleaserDB.Enabled)
 end
 
-function ToggleUseSoulstone(force, shouldPrint)
+local function ToggleUseSoulstone(force, shouldPrint)
     if BattlegroundSpiritReleaserDB.UseSoulstone == nil then InitializeBattlegroundSpiritReleaserDB(BattlegroundSpiritReleaserDBDefaults) end
     if force ~= nil then BattlegroundSpiritReleaserDB.UseSoulstone = force else BattlegroundSpiritReleaserDB.UseSoulstone = not BattlegroundSpiritReleaserDB.UseSoulstone end
     if shouldPrint ~= nil and shouldPrint == true then
@@ -38,7 +38,7 @@ function ToggleUseSoulstone(force, shouldPrint)
     BattlegroundSpiritReleaserUseSoulstoneCheckButton:SetChecked(BattlegroundSpiritReleaserDB.UseSoulstone)
 end
 
-function SetSoulstoneDelay(delay, shouldPrint)
+local function SetSoulstoneDelay(delay, shouldPrint)
     if BattlegroundSpiritReleaserDB.SoulstoneDelay == nil then InitializeBattlegroundSpiritReleaserDB(BattlegroundSpiritReleaserDBDefaults) end
     local output = ""
 
