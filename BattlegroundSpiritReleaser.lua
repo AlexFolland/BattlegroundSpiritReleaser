@@ -57,8 +57,10 @@ local function SetSoulstoneDelay(delay, shouldPrint)
     end
 
     BattlegroundSpiritReleaserSoulstoneDelayEditBox:SetText(tostring(BattlegroundSpiritReleaserDB.SoulstoneDelay))
+    BattlegroundSpiritReleaserSoulstoneDelayEditBox:SetCursorPosition(0)
     local onValueChangedBackup = onValueChangedBackup or BattlegroundSpiritReleaserSoulstoneDelaySlider:GetScript("OnValueChanged")
     BattlegroundSpiritReleaserSoulstoneDelaySlider:SetScript("OnValueChanged", nil)
+    --StaticPopupDialogs["DEATH"].timeout = delay
     BattlegroundSpiritReleaserSoulstoneDelaySlider:SetValue(BattlegroundSpiritReleaserDB.SoulstoneDelay)
     BattlegroundSpiritReleaserSoulstoneDelaySlider:SetScript("OnValueChanged", onValueChangedBackup)
 
@@ -116,12 +118,13 @@ soulstoneDelaySlider:SetScript("OnValueChanged", function(self, value)
     value = floor((value*20)+0.5)/20
     BattlegroundSpiritReleaserDB.SoulstoneDelay = value
     BattlegroundSpiritReleaserSoulstoneDelayEditBox:SetText(tostring(value))
+    BattlegroundSpiritReleaserSoulstoneDelayEditBox:SetCursorPosition(0)
 end)
 
 optionsMenu.name = "BattlegroundSpiritReleaser"
 InterfaceOptions_AddCategory(optionsMenu)
 
---handle ADDON_LOADED event for initializing GUI options menu checkbox states at the right time
+--handle ADDON_LOADED event for initializing GUI options menu widget states at the right time
 optionsMenu:RegisterEvent("ADDON_LOADED")
 optionsMenu:SetScript("OnEvent", function (this, event, arg1, ...)
     if arg1 == "BattlegroundSpiritReleaser" then
@@ -129,6 +132,7 @@ optionsMenu:SetScript("OnEvent", function (this, event, arg1, ...)
         BattlegroundSpiritReleaserEnabledCheckButton:SetChecked(BattlegroundSpiritReleaserDB.Enabled)
         BattlegroundSpiritReleaserUseSoulstoneCheckButton:SetChecked(BattlegroundSpiritReleaserDB.UseSoulstone)
         BattlegroundSpiritReleaserSoulstoneDelayEditBox:SetText(tostring(BattlegroundSpiritReleaserDB.SoulstoneDelay))
+        BattlegroundSpiritReleaserSoulstoneDelayEditBox:SetCursorPosition(0)
         BattlegroundSpiritReleaserSoulstoneDelaySlider:SetValue(BattlegroundSpiritReleaserDB.SoulstoneDelay)
 
         optionsMenu:UnregisterEvent(event)
