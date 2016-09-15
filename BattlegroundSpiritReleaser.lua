@@ -127,7 +127,7 @@ InterfaceOptions_AddCategory(optionsMenu)
 --handle PLAYER_ENTERING_WORLD events for initializing GUI options menu widget states at the right time
 --previously used ADDON_LOADED, but UI reload doesn't seem to fire ADDON_LOADED
 optionsMenu:RegisterEvent("PLAYER_ENTERING_WORLD")
-optionsMenu:SetScript("OnEvent", function (self, ...)
+optionsMenu:SetScript("OnEvent", function (self, event, ...)
     InitializeBattlegroundSpiritReleaserDB(BattlegroundSpiritReleaserDBDefaults)
     BattlegroundSpiritReleaserEnabledCheckButton:SetChecked(BattlegroundSpiritReleaserDB.Enabled)
     BattlegroundSpiritReleaserUseSoulstoneCheckButton:SetChecked(BattlegroundSpiritReleaserDB.UseSoulstone)
