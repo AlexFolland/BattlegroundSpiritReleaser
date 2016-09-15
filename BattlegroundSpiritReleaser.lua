@@ -9,7 +9,7 @@ local maxSoulstoneDelay = 20
 
 --function to initialize missing saved variables with default values
 local function InitializeBattlegroundSpiritReleaserDB(defaults)
-    if not BattlegroundSpiritReleaserDB then BattlegroundSpiritReleaserDB = {} end
+    if BattlegroundSpiritReleaserDB == nil then BattlegroundSpiritReleaserDB = {} end
     for k,v in pairs(defaults) do
         if BattlegroundSpiritReleaserDB[k] == nil then
             BattlegroundSpiritReleaserDB[k] = defaults[k]
@@ -124,20 +124,19 @@ end)
 optionsMenu.name = "BattlegroundSpiritReleaser"
 InterfaceOptions_AddCategory(optionsMenu)
 
---handle ADDON_LOADED event for initializing GUI options menu widget states at the right time
-optionsMenu:RegisterEvent("ADDON_LOADED")
-optionsMenu:SetScript("OnEvent", function (this, event, arg1, ...)
-    if arg1 == "BattlegroundSpiritReleaser" then
-        InitializeBattlegroundSpiritReleaserDB(BattlegroundSpiritReleaserDBDefaults)
-        BattlegroundSpiritReleaserEnabledCheckButton:SetChecked(BattlegroundSpiritReleaserDB.Enabled)
-        BattlegroundSpiritReleaserUseSoulstoneCheckButton:SetChecked(BattlegroundSpiritReleaserDB.UseSoulstone)
-        BattlegroundSpiritReleaserSoulstoneDelayEditBox:SetText(tostring(BattlegroundSpiritReleaserDB.SoulstoneDelay))
-        BattlegroundSpiritReleaserSoulstoneDelayEditBox:SetCursorPosition(0)
-        BattlegroundSpiritReleaserSoulstoneDelaySlider:SetValue(BattlegroundSpiritReleaserDB.SoulstoneDelay)
+--handle PLAYER_ENTERING_WORLD events for initializing GUI options menu widget states at the right time
+--previously used ADDON_LOADED, but UI reload doesn't seem to fire ADDON_LOADED
+optionsMenu:RegisterEvent("PLAYER_ENTERING_WORLD")
+optionsMenu:SetScript("OnEvent", function (self, ...)
+    InitializeBattlegroundSpiritReleaserDB(BattlegroundSpiritReleaserDBDefaults)
+    BattlegroundSpiritReleaserEnabledCheckButton:SetChecked(BattlegroundSpiritReleaserDB.Enabled)
+    BattlegroundSpiritReleaserUseSoulstoneCheckButton:SetChecked(BattlegroundSpiritReleaserDB.UseSoulstone)
+    BattlegroundSpiritReleaserSoulstoneDelayEditBox:SetText(tostring(BattlegroundSpiritReleaserDB.SoulstoneDelay))
+    BattlegroundSpiritReleaserSoulstoneDelayEditBox:SetCursorPosition(0)
+    BattlegroundSpiritReleaserSoulstoneDelaySlider:SetValue(BattlegroundSpiritReleaserDB.SoulstoneDelay)
 
-        optionsMenu:UnregisterEvent(event)
-        optionsMenu:SetScript("OnEvent", nil)
-    end
+    optionsMenu:UnregisterEvent(event)
+    optionsMenu:SetScript("OnEvent", nil)
 end)
 
 --CLI options menu
