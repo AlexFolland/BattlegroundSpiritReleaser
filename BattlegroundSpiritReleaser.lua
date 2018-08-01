@@ -178,6 +178,14 @@ SlashCmdList["BattlegroundSpiritReleaser"] = function(msg)
     end
 end
 
+--HasSoulstone was deprecated. Here's its functionality back if it's missing.
+if (HasSoulstone == nil) then
+	function HasSoulstone()
+		local options = GetSortedSelfResurrectOptions()
+		return options and options[1] and options[1].name
+	end
+end
+
 --get current time when the death dialog appears to measure for delay
 hooksecurefunc(StaticPopupDialogs["DEATH"],"OnShow",function(self)
     if InActiveBattlefield() and not IsActiveBattlefieldArena() then
