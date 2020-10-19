@@ -1,3 +1,10 @@
+--undeprecate InActiveBattlefield
+if InActiveBattlefield == nil then
+	function InActiveBattlefield()
+		return C_PvP.IsActiveBattlefield()
+	end
+end
+
 --default values for options saved between sessions
 local BattlegroundSpiritReleaserDBDefaults = {
 	Enabled = true,
