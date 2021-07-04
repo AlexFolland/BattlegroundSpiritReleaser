@@ -1,4 +1,7 @@
 ## Interface: 90005
+## Interface-Retail: 90005
+## Interface-Classic: 11307
+## Interface-BCC: 20501
 ## Title: BattlegroundSpiritReleaser
 ## Notes: automatically releases spirit upon death in battlegrounds
 ## Author: Alex Folland
@@ -6,3 +9,5 @@
 BattlegroundSpiritReleaser.lua
 ## SavedVariables: BattlegroundSpiritReleaserDB
 ## SavedVariablesPerCharacter: BattlegroundSpiritReleaserDB
+
+## X-Curse-Project-ID: 95070
