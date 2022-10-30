@@ -79,13 +79,13 @@ end
 --GUI options menu
 local optionsMenu = CreateFrame("Frame", "BattlegroundSpiritReleaserOptionsMenu", InterfaceOptionsFramePanelContainer)
 
-local enabledCheckButton = CreateFrame("CheckButton", "BattlegroundSpiritReleaserEnabledCheckButton", optionsMenu, "OptionsCheckButtonTemplate")
+local enabledCheckButton = CreateFrame("CheckButton", "BattlegroundSpiritReleaserEnabledCheckButton", optionsMenu, "InterfaceOptionsCheckButtonTemplate")
 enabledCheckButton:SetPoint("TOPLEFT", 16, -16)
 enabledCheckButton:SetHitRectInsets(0, -240, 0, 0)
 enabledCheckButton:SetScript("OnClick", function() ToggleBattlegroundSpiritReleaser(nil, false) end)
 _G[enabledCheckButton:GetName() .. "Text"]:SetText("Release spirit as soon as possible")
 
-local useSoulstoneCheckButton = CreateFrame("CheckButton", "BattlegroundSpiritReleaserUseSoulstoneCheckButton", optionsMenu, "OptionsCheckButtonTemplate")
+local useSoulstoneCheckButton = CreateFrame("CheckButton", "BattlegroundSpiritReleaserUseSoulstoneCheckButton", optionsMenu, "InterfaceOptionsCheckButtonTemplate")
 useSoulstoneCheckButton:SetPoint("TOPLEFT", enabledCheckButton, "BOTTOMLEFT", 0, -8)
 useSoulstoneCheckButton:SetScript("OnClick", function() ToggleUseSoulstone(nil, false) end)
 useSoulstoneCheckButton:SetHitRectInsets(0, -450, 0, 0)
@@ -174,6 +174,7 @@ SlashCmdList["BattlegroundSpiritReleaser"] = function(msg)
 			ToggleUseSoulstone(nil, true)
 		end
 	elseif (param1 == "") then
+		InterfaceOptionsFrame_OpenToCategory(optionsMenu)
 		InterfaceOptionsFrame_OpenToCategory(optionsMenu)
 	else
 		print("BattlegroundSpiritReleaser: "..(param1 == "help" and "" or "Unrecognized command. ").."Recognized commands:")
