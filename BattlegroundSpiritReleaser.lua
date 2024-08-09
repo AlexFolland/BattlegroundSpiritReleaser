@@ -5,6 +5,24 @@ if InActiveBattlefield == nil then
 	end
 end
 
+--undeprecate settings menu category API
+local InterfaceOptions_AddCategory = InterfaceOptions_AddCategory or function(frame, addOn, position)
+	frame.OnCommit = frame.okay
+	frame.OnDefault = frame.default
+	frame.OnRefresh = frame.refresh
+
+	if frame.parent then
+		local category = Settings.GetCategory(frame.parent)
+		local subcategory, layout = Settings.RegisterCanvasLayoutSubcategory(category, frame, frame.name, frame.name)
+		return subcategory, category
+	else
+		local category, layout = Settings.RegisterCanvasLayoutCategory(frame, frame.name, frame.name)
+		Settings.RegisterCategory(category)
+		return category
+	end
+end
+local InterfaceOptionsFrame_OpenToCategory = InterfaceOptionsFrame_OpenToCategory or Settings.OpenToCategory
+
 --default values for options saved between sessions
 local BattlegroundSpiritReleaserDBDefaults = {
 	Enabled = true,
