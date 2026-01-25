@@ -1,9 +1,5 @@
 --undeprecate InActiveBattlefield
-if InActiveBattlefield == nil then
-	function InActiveBattlefield()
-		return C_PvP.IsActiveBattlefield()
-	end
-end
+local InActiveBattlefield = (C_PvP and C_PvP.IsActiveBattlefield) or InActiveBattlefield
 
 --undeprecate settings menu category API
 local InterfaceOptions_AddCategory = InterfaceOptions_AddCategory or function(frame, addOn, position)
@@ -13,11 +9,11 @@ local InterfaceOptions_AddCategory = InterfaceOptions_AddCategory or function(fr
 
 	if frame.parent then
 		local category = Settings.GetCategory(frame.parent)
-		local subcategory, layout = Settings.RegisterCanvasLayoutSubcategory(category, frame, frame.name, frame.name)
+		local subcategory, layout = Settings.RegisterCanvasLayoutSubcategory(category, frame, frame.name)
 		return subcategory, category
 	else
 		local category, layout = Settings.RegisterCanvasLayoutCategory(frame, frame.name, frame.name)
-		Settings.RegisterCategory(category)
+		Settings.RegisterAddOnCategory(category)
 		return category
 	end
 end
@@ -95,7 +91,12 @@ local function SetSoulstoneDelay(delay, shouldPrint)
 end
 
 --GUI options menu
-local optionsMenu = CreateFrame("Frame", "BattlegroundSpiritReleaserOptionsMenu", InterfaceOptionsFramePanelContainer)
+local optionsMenu = CreateFrame("Frame", "BattlegroundSpiritReleaserOptionsMenu")
+optionsMenu:SetWidth(1) -- must be set to at least 1 or the menu is invisible in the scroll frame, but will expand to show everything
+optionsMenu:SetHeight(1) -- must be set to at least 1 or the menu is invisible in the scroll frame, but will expand to show everything
+local optionsMenuParent = CreateFrame("ScrollFrame", "BattlegroundSpiritReleaserOptionsMenuScrollFrame", nil, "UIPanelScrollFrameTemplate")
+optionsMenuParent.name = "BattlegroundSpiritReleaser"
+optionsMenuParent:SetScrollChild(optionsMenu)
 
 local enabledCheckButton = CreateFrame("CheckButton", "BattlegroundSpiritReleaserEnabledCheckButton", optionsMenu, "InterfaceOptionsCheckButtonTemplate")
 enabledCheckButton:SetPoint("TOPLEFT", 16, -16)
@@ -146,8 +147,7 @@ soulstoneDelaySlider:SetScript("OnValueChanged", function(self, value)
 	BattlegroundSpiritReleaserSoulstoneDelayEditBox:SetCursorPosition(0)
 end)
 
-optionsMenu.name = "BattlegroundSpiritReleaser"
-InterfaceOptions_AddCategory(optionsMenu)
+InterfaceOptions_AddCategory(optionsMenuParent)
 
 --handle PLAYER_ENTERING_WORLD events for initializing GUI options menu widget states at the right time
 --UI reload doesn't seem to fire ADDON_LOADED
@@ -192,8 +192,22 @@ SlashCmdList["BattlegroundSpiritReleaser"] = function(msg)
 			ToggleUseSoulstone(nil, true)
 		end
 	elseif (param1 == "") then
-		InterfaceOptionsFrame_OpenToCategory(optionsMenu)
-		InterfaceOptionsFrame_OpenToCategory(optionsMenu)
+		if Settings and Settings.OpenToCategory then
+			local categoryID
+			local categoryName = C_AddOns.GetAddOnMetadata("BattlegroundSpiritReleaser", "Title")
+			for _, category in next, SettingsPanel:GetAllCategories() do
+				if category.name == categoryName then
+					assert(not categoryID, 'found multiple instances of the same category')
+					categoryID = category:GetID()
+				end
+			end
+			Settings.OpenToCategory(categoryID)
+		else
+			if not InterfaceAddOnsList_Update then
+				InterfaceOptionsFrame_OpenToCategory(optionsMenu)
+			end
+			InterfaceOptionsFrame_OpenToCategory(optionsMenu)
+		end
 	else
 		print("BattlegroundSpiritReleaser: "..(param1 == "help" and "" or "Unrecognized command. ").."Recognized commands:")
 		print("    '/bsr': GUI options menu")
@@ -204,33 +218,68 @@ SlashCmdList["BattlegroundSpiritReleaser"] = function(msg)
 	end
 end
 
---HasSoulstone was deprecated. Here's its functionality back if it's missing.
-if (HasSoulstone == nil) then
-	function HasSoulstone()
-		local options = GetSortedSelfResurrectOptions()
-		return options and options[1] and options[1].name
-	end
+local function HasAndCanUseSoulstone()
+	local selfResOptions = GetSortedSelfResurrectOptions()
+	return (HasSoulstone and HasSoulstone() and CanUseSoulstone and CanUseSoulstone()) or
+	(selfResOptions[1] and selfResOptions[1].name and selfResOptions[1].canUse) or
+	(selfResOptions[2] and selfResOptions[2].name and selfResOptions[2].canUse)
 end
 
 --get current time when the death dialog appears to measure for delay
 hooksecurefunc(StaticPopupDialogs["DEATH"],"OnShow",function(self)
 	if InActiveBattlefield() and not IsActiveBattlefieldArena() then
-		if HasSoulstone() and BattlegroundSpiritReleaserDB.UseSoulstone ~= nil and BattlegroundSpiritReleaserDB.UseSoulstone == true then
+		local selfResOption1, selfResOption2
+		if GameDialogDefsUtil and GameDialogDefsUtil.GetSelfResurrectDialogOptions then
+			selfResOption1, selfResOption2 = GameDialogDefsUtil.GetSelfResurrectDialogOptions()
+		end
+		local canSelfRes = (HasSoulstone and HasSoulstone()) or (selfResOption1 and selfResOption1.canUse) or (selfResOption2 and selfResOption2.canUse)
+		if canSelfRes and BattlegroundSpiritReleaserDB.UseSoulstone ~= nil and BattlegroundSpiritReleaserDB.UseSoulstone == true then
 			BattlegroundSpiritReleaserSoulstoneDelayStartTime = GetTime()
 		end
 	end
 end)
 
 --the main functionality; post-hook for death StaticPopup
-hooksecurefunc(StaticPopupDialogs["DEATH"],"OnUpdate",function(self)
+hooksecurefunc(StaticPopupDialogs["DEATH"], "OnUpdate", function(self)
 	if InActiveBattlefield() and not IsActiveBattlefieldArena() then
-		if HasSoulstone() and BattlegroundSpiritReleaserDB.UseSoulstone ~= nil and BattlegroundSpiritReleaserDB.UseSoulstone == true then
-			if BattlegroundSpiritReleaserSoulstoneDelayStartTime ~= nil and self.button2:IsEnabled() and GetTime() >= BattlegroundSpiritReleaserSoulstoneDelayStartTime + BattlegroundSpiritReleaserDB.SoulstoneDelay then
-				self.button2:Click()
+		if BattlegroundSpiritReleaserDB.UseSoulstone ~= nil and BattlegroundSpiritReleaserDB.UseSoulstone == true and HasAndCanUseSoulstone() then
+			local soulstoneButton
+			if self.button2
+			and self.button2.Click
+			and self.button2.IsEnabled
+			and self.button2:IsEnabled() then
+				soulstoneButton = self.button2
+			end
+			if self.ButtonContainer and self.ButtonContainer.Buttons then
+				for i=3,2,-1 do -- count downward to end with button 2 instead of 3
+					if self.ButtonContainer.Buttons[i]
+					and self.ButtonContainer.Buttons[i].Click
+					and self.ButtonContainer.Buttons[i].IsEnabled
+					and self.ButtonContainer.Buttons[i]:IsEnabled() then
+						soulstoneButton = self.ButtonContainer.Buttons[i]
+					end
+				end
+			end
+			if BattlegroundSpiritReleaserSoulstoneDelayStartTime ~= nil
+			and soulstoneButton
+			and GetTime() >= BattlegroundSpiritReleaserSoulstoneDelayStartTime + BattlegroundSpiritReleaserDB.SoulstoneDelay then
+				soulstoneButton:Click()
 				print("BattlegroundSpiritReleaser: Soulstone used"..(BattlegroundSpiritReleaserDB.SoulstoneDelay == 0 and "" or " after a delay of "..tostring(BattlegroundSpiritReleaserDB.SoulstoneDelay).." second"..(BattlegroundSpiritReleaserDB.SoulstoneDelay == 1 and "" or "s"))..". You can toggle this functionality with \"/bsr soulstone\".")
 			end
-		elseif self.button1:IsEnabled() and BattlegroundSpiritReleaserDB.Enabled ~= nil and BattlegroundSpiritReleaserDB.Enabled == true then
-			self.button1:Click()
+		else
+			if BattlegroundSpiritReleaserDB.Enabled ~= nil and BattlegroundSpiritReleaserDB.Enabled == true then
+				if self.ButtonContainer and self.ButtonContainer.Button1
+				and self.ButtonContainer.Button1.Click
+				and self.ButtonContainer.Button1.IsEnabled
+				and self.ButtonContainer.Button1:IsEnabled() then
+					self.ButtonContainer.Button1:Click()
+				elseif self.button1
+				and self.button1.Click
+				and self.button1.IsEnabled
+				and self.button1:IsEnabled() then
+					self.button1:Click()
+				end
+			end
 		end
 	end
 end)
