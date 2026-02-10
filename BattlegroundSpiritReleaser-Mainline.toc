@@ -1,8 +1,0 @@
-## Interface: 110107, 110200, 110205, 120000, 120001
-## Title: BattlegroundSpiritReleaser
-## Notes: automatically releases spirit upon death in battlegrounds
-## Author: Alex Folland
-
-BattlegroundSpiritReleaser.lua
-## SavedVariables: BattlegroundSpiritReleaserDB
-## SavedVariablesPerCharacter: BattlegroundSpiritReleaserDB
